@@ -56,7 +56,7 @@ func New(log *logrus.Logger, opts ...Option) gin.HandlerFunc {
 		}
 
 		if cfg.Fields.Latency {
-			fields["latency"] = time.Since(start).Milliseconds()
+			fields["latency"] = time.Since(start).String()
 		}
 
 		if cfg.Fields.RequestSize {

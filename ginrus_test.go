@@ -29,7 +29,7 @@ type logrusOutput struct {
 	UserAgent    string `json:"user_agent"`
 
 	// These are too difficult to test because of timing
-	// Latency    float64 `json:"latency"`
+	// Latency    string `json:"latency"`
 	// Time string `json:"time"`
 }
 
