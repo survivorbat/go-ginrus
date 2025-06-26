@@ -12,7 +12,7 @@ type PreLogFunc func(*gin.Context, logrus.Fields)
 
 // Config is formed through Option calls in Logger
 type Config struct {
-	// LogLevels defines specific log levels
+	// LogLevels defines specific log levels for types of messages
 	LogLevels struct {
 		// DefaultLogLevel is the default log level used for status codes below 400
 		DefaultLogLevel logrus.Level

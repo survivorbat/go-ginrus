@@ -36,7 +36,7 @@ func main() {
   engine := gin.New()
 
   // This will configure ginrus with its default configuration
-  engine.Use(ginrus.New(logger))
+  engine.Use(ginrus.New(logger), configureLogger)
 }
 ```
 
