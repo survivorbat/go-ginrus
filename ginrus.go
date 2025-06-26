@@ -17,12 +17,27 @@ func New(log *logrus.Logger, opts ...Option) gin.HandlerFunc {
 		opt(cfg)
 	}
 
+	ignorePaths := make(map[string]struct{}, len(cfg.IgnorePaths))
+	for _, ignoredPath := range cfg.IgnorePaths {
+		ignorePaths[ignoredPath] = struct{}{}
+	}
+
 	return func(c *gin.Context) {
 		start := time.Now()
 
 		c.Next()
 
+		requestPath := c.Request.URL.Path
+
+		if _, ok := ignorePaths[requestPath]; ok {
+			return
+		}
+
 		fields := logrus.Fields{}
+
+		if cfg.Fields.Path {
+			fields["path"] = requestPath
+		}
 
 		if cfg.Fields.Latency {
 			fields["latency"] = time.Since(start).String()
@@ -56,10 +71,6 @@ func New(log *logrus.Logger, opts ...Option) gin.HandlerFunc {
 			fields["client_ip"] = c.ClientIP()
 		}
 
-		if cfg.Fields.Path {
-			fields["path"] = c.Request.URL.Path
-		}
-
 		if cfg.Fields.UserAgent {
 			fields["user_agent"] = c.Request.UserAgent()
 		}
@@ -71,10 +82,10 @@ func New(log *logrus.Logger, opts ...Option) gin.HandlerFunc {
 		cfg.PreLogFunc(c, fields)
 
 		if c.Writer.Status() > 399 || len(c.Errors) > 0 {
-			log.WithFields(fields).Log(cfg.LogLevels.ErrorStatusCodeLogLevel, cfg.Messages.DefaultErrorMessage)
+			log.WithContext(c.Request.Context()).WithFields(fields).Log(cfg.LogLevels.ErrorStatusCodeLogLevel, cfg.Messages.DefaultErrorMessage)
 			return
 		}
 
-		log.WithFields(fields).Log(cfg.LogLevels.DefaultLogLevel, cfg.Messages.DefaultMessage)
+		log.WithContext(c.Request.Context()).WithFields(fields).Log(cfg.LogLevels.DefaultLogLevel, cfg.Messages.DefaultMessage)
 	}
 }

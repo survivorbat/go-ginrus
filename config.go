@@ -30,6 +30,9 @@ type Config struct {
 		DefaultErrorMessage string
 	}
 
+	// IgnorePaths that should not be logged
+	IgnorePaths []string
+
 	// PreLogFunc is executed before the final log call
 	PreLogFunc PreLogFunc
 
@@ -77,5 +80,12 @@ func newDefaultConfig() *Config {
 func WithPreLog(f PreLogFunc) Option {
 	return func(c *Config) {
 		c.PreLogFunc = f
+	}
+}
+
+// WithIgnore will not log the given paths
+func WithIgnore(requestPaths ...string) Option {
+	return func(c *Config) {
+		c.IgnorePaths = append(c.IgnorePaths, requestPaths...)
 	}
 }

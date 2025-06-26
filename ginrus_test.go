@@ -110,3 +110,24 @@ func TestNew_CallsPreLogCallback(t *testing.T) {
 	// Assert
 	assert.True(t, callbackCalled, "expected callback to have been called")
 }
+
+func TestNew_IgnoresPathsIfRequested(t *testing.T) {
+	t.Parallel()
+	// Arrange
+	out := new(bytes.Buffer)
+
+	logger := logrus.New()
+	logger.Out = out
+
+	subject := New(logger, WithIgnore("/health"))
+
+	httpWriter := httptest.NewRecorder()
+	ginContext, _ := gin.CreateTestContext(httpWriter)
+	ginContext.Request = httptest.NewRequest(http.MethodGet, "https://localhost/health", http.NoBody)
+
+	// Act
+	subject(ginContext)
+
+	// Assert
+	assert.Empty(t, out.Bytes())
+}
